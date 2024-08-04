@@ -2,14 +2,14 @@ import { join } from "node:path";
 import { electronApp, is, optimizer } from "@electron-toolkit/utils";
 import { BrowserWindow, app, ipcMain, shell } from "electron";
 import icon from "../../resources/icon.png?asset";
+import { CreatePDF, type CreatePDFProps } from "./functions/CreatePDF";
 
 function createWindow(): void {
 	// Create the browser window.
 	const mainWindow = new BrowserWindow({
-		width: 900,
-		height: 670,
+		fullscreen: true,
 		show: false,
-		autoHideMenuBar: true,
+		autoHideMenuBar: false,
 		...(process.platform === "linux" ? { icon } : {}),
 		webPreferences: {
 			preload: join(__dirname, "../preload/index.js"),
@@ -50,7 +50,11 @@ app.whenReady().then(() => {
 	});
 
 	// IPC test
-	ipcMain.on("ping", () => console.log("pong"));
+	ipcMain.handle("createPDF", async (_, { htmlString }: CreatePDFProps) =>
+		CreatePDF({
+			htmlString,
+		}),
+	);
 
 	createWindow();
 
